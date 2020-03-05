@@ -1,25 +1,27 @@
-const { createServer } = require('http')
-const path = require('path')
-const next = require('next')
+var logger = require("morgan"),
+cors = require("cors"),
+http = require("http"),
+express = require("express"),
+bodyParser = require("body-parser");
 
-const dev = process.env.NODE_ENV !== 'production'
-const app = next({ dir: '.', dev })
-const handle = app.getRequestHandler()
+var app = express();
+var port = 3000;
 
-const PORT = process.env.PORT || 3000
+app.use(logger('dev'));
+app.use(bodyParser.json());
 
-app.prepare().then(_ => {
-	const server = createServer((req, res) => {
-		if (req.url === '/sw.js' || req.url.startsWith('/precache-manifest')) {
-			app.serveStatic(req, res, path.join(__dirname, '.next', req.url))
-		} else {
-			handle(req, res)
-		}
-	})
+app.get('/hello/:foo/:bar', function(req,res){
+    res.json({result: "Hello World! 😤😱🥵🤡", data: [
+        req.params.foo,
+        req.params.bar
+    ]});
+});
 
-	server.listen(PORT, err => {
-		if (err) throw err
+app.post('/hello', function(req,res){
+    res.json({result: "The POST request was sent", data: req.body});
 
-		console.log(`> App running on port ${PORT}`)
-	})
-})
+});
+
+app.listen(port, function(err){
+    console.log("Listening on Port: " + port)
+});
